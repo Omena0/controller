@@ -20,7 +20,7 @@ joystick = pygame.joystick.Joystick(0)
 # --- Config ---
 sensitivity = 1.5     # Overall speed multiplier
 deadzone = 0.05     # Deadzone for joystick (recommended 0.05 to 0.1)
-exponent = 2.5      # How steeply speed increases (> 1)
+exponent = 1.1      # How steeply speed increases (> 1)
 linear_mix = 0.2    # How much linear control (0 to 1). Higher = more initial speed.
 repeat_delay = 0.3  # Delay before repeat starts (in seconds)
 
@@ -31,7 +31,7 @@ keybinds = {
     'dpad_right':    (0.05, lambda: input.press('right')),
     'button_a':      (None, lambda: input.press('enter')),
     'button_b':      (None, lambda: input.press('backspace')),
-    'button_x':      (0.05, lambda: input.press('space')),
+    'button_x':      (None, lambda: input.press('esc')),
     'button_y':      (0.05, lambda: input.press('tab')),
     'left_bumper':   (None, lambda: input.click(button='middle')),
     'right_bumper':  (None, lambda: hold_key('§', 0.5)),
