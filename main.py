@@ -18,7 +18,7 @@ clock = pygame.time.Clock()
 joystick = pygame.joystick.Joystick(0)
 
 # --- Config ---
-sensitivity = 1     # Overall speed multiplier
+sensitivity = 1.5     # Overall speed multiplier
 deadzone = 0.05     # Deadzone for joystick (recommended 0.05 to 0.1)
 exponent = 2.5      # How steeply speed increases (> 1)
 linear_mix = 0.2    # How much linear control (0 to 1). Higher = more initial speed.
@@ -98,7 +98,13 @@ def setMouseState(left, right):
     mouse_state = [left, right]
 
 # Handlers
+# Add these global variables for cursor position tracking and accumulated movement
+cursor_position = Vector2(0, 0)
+accumulated_movement = Vector2(0, 0)
+
 def handle_mouse():
+    global cursor_position, accumulated_movement
+    
     # Mouse movement
     x, y = 0.0, 0.0
     raw_x = joystick.get_axis(0)
@@ -110,7 +116,7 @@ def handle_mouse():
     if abs(raw_y) > deadzone:
         y = raw_y
 
-    movement = Vector2(x,y)
+    movement = Vector2(x, y)
 
     if movement.magnitude_squared() > 0:
         # Combine linear and exponential components
@@ -124,11 +130,25 @@ def handle_mouse():
         x_move = math.copysign(x_combined, movement.x) * dt
         y_move = math.copysign(y_combined, movement.y) * dt
 
-        if abs(x_move) > 0 or abs(y_move) > 0: # Only move if there's calculated movement
-            input.moveRel(
-                round(x_move),
-                round(y_move)
-            )
+        # Add to accumulated movement
+        accumulated_movement.x += x_move
+        accumulated_movement.y += y_move
+        
+        # Get integer part of accumulated movement
+        x_int = int(accumulated_movement.x)
+        y_int = int(accumulated_movement.y)
+        
+        # If there's integer movement, apply it and subtract from accumulator
+        if x_int != 0 or y_int != 0:
+            input.moveRel(x_int, y_int)
+            
+            # Update cursor position (for tracking)
+            cursor_position.x += x_int
+            cursor_position.y += y_int
+            
+            # Subtract the integer part from accumulator (keeping fractional part)
+            accumulated_movement.x -= x_int
+            accumulated_movement.y -= y_int
 
         return x_move, y_move
     return 0, 0
